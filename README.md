@@ -13,11 +13,9 @@ Ao utilizar o Spring, é bastante importante entender as funcionalidades das ano
 `@Colum` - Indica que o atributo será uma uma coluna na tabela.
 
 - *nullable* *(true/false)* - indica que o atributo poderá ser - ou não - **vazio** na tabela.
-- *unique* *(true/false)* - indica que o atributo poderá ser - ou não - ú**nico** na tabela.
+- *unique* *(true/false)* - indica que o atributo poderá ser - ou não - **único** na tabela.
 
 **Relações de classes**
-
-`@JoinColumn` - Quando falamos de banco de dados relacional, precisamos entender que a chave estrangeira também deve ter seu lugar na tabela. O Join Column adiciona uma coluna à tabela fazendo a relação entre as classes.
 
 `@OneToOne` - Quando as classes tiverem relação de um para um, esta anotação deve  ser utilizada. Exemplo do projeto:
 
@@ -71,11 +69,25 @@ public class Publisher {
 // Uma editora pode ter vários livros
 
 	@OneToMany
-	private Book book;
+	private Set<Book> book = new HashSet<>();
 }
 ```
+`@JoinColumn` - Quando falamos de banco de dados relacional, precisamos entender que a chave estrangeira também deve ter seu lugar na tabela. O Join Column adiciona uma coluna à tabela fazendo a relação entre as classes.
 
-`@JoinTable` - No caso de relações *many to many,* é necessário construir uma tabela auxiliar para armazenar os dados a partir dessa relação, e declarando essa anotação conseguimos criar a tabela de acordo com os atributos abaixo:
+- *mappedBy* - Define o lado não dominante da relação entre as entidades. Quando usamos `@JoinColumn`, estamos especificando o lado dominante (ou seja, o lado que controla a relação e onde a chave estrangeira é armazenada). Já o atributo *mappedBy* é utilizado na anotação de relação do lado oposto, indicando que essa entidade é a parte não dominante e que a propriedade que mapeia a relação pertence à outra entidade. 
 
-- *name* - Adiciona o nome da tabela.
-- joinColumns - Junto da anotação `@JoinColumn` adiciona uma coluna à tabela.
+Exemplo:
+
+```java
+public class Publisher {
+    // Uma editora pode ter vários livros
+    @OneToMany(mappedBy = "publisher")
+    private List<Book> books;
+}
+
+public class Book {
+    // Vários livros têm uma única editora
+    @ManyToOne
+    @JoinColumn(name = "publisher_id")
+    private Publisher publisher;
+}
